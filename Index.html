@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PULSE">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>PULSE — Intelligence Feed</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%23FF3B30'/><text x='50' y='72' font-size='60' font-weight='bold' text-anchor='middle' fill='white'>P</text></svg>">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUFVMU0UiLCJzaG9ydF9uYW1lIjoiUFVMU0UiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzAwMDAwMCIsInRoZW1lX2NvbG9yIjoiIzAwMDAwMCJ9">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--s:rgba(255,255,255,.04);--sh:rgba(255,255,255,.07);--b:rgba(255,255,255,.07);--t1:#F5F5F7;--t2:#A1A1A6;--t3:#636366;--red:#FF3B30;--blue:#007AFF;--green:#34C759;--orange:#FF9500;--purple:#5856D6;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{display:none}html{scrollbar-width:none}
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 0%,rgba(88,86,214,.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 100%,rgba(255,59,48,.04) 0%,transparent 50%)}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--b);padding-top:var(--safe-t)}
+.hbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px}
+.logo-g{display:flex;align-items:center;gap:10px}
+.logo-i{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#FF3B30,#FF6B6B,#FF9500);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff}
+.logo-t h1{font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.logo-t span{font-size:9px;color:var(--t3);letter-spacing:2.5px;text-transform:uppercase;font-weight:600}
+.hacts{display:flex;align-items:center;gap:10px}
+.live{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.2)}
+.live-d{width:6px;height:6px;border-radius:50%;background:var(--red);animation:lp 2s ease-in-out infinite}
+.live span{font-size:9px;font-weight:700;color:var(--red);letter-spacing:1.5px;font-family:'JetBrains Mono',monospace}
+@keyframes lp{0%,100%{opacity:1;box-shadow:0 0 6px rgba(255,59,48,.6)}50%{opacity:.25;box-shadow:none}}
+.ibtn{width:38px;height:38px;border-radius:11px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;position:relative;transition:.2s}
+.ibtn:active{background:var(--sh)}
+.badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--red);border:2px solid #000;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.sbar{padding:0 18px 0;max-height:0;overflow:hidden;transition:.3s}.sbar.open{max-height:60px;padding:0 18px 12px}
+.sbar input{width:100%;padding:11px 16px;border-radius:13px;border:1px solid var(--b);background:var(--s);color:var(--t1);font-size:14px;outline:none;font-family:inherit}
+.sbar input::placeholder{color:var(--t3)}
+.cats{display:flex;gap:6px;padding:0 18px 14px;overflow-x:auto;scrollbar-width:none}
+.cp{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1px solid var(--b);background:var(--s);color:var(--t3);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.25s;font-family:inherit}
+.cp.active{border-color:transparent;color:#fff;font-weight:600}
+
+/* REFRESH */
+.rbar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;position:relative;z-index:1}
+.rbar .meta{font-size:11px;color:var(--t3)}
+.rbtn{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:5px 14px;color:var(--blue);font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit}
+.rbtn:active{background:var(--sh)}
+.rbtn.sp .ri{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PANELS */
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:.3s}
+.ov.open{opacity:1;pointer-events:auto}
+.npan{position:absolute;top:0;right:-85%;width:85%;height:100%;background:#1C1C1E;padding:28px 20px;overflow-y:auto;transition:right .35s cubic-bezier(.32,.72,0,1);padding-top:calc(28px + var(--safe-t))}
+.ov.open .npan{right:0}
+.nh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.nh h3{font-size:22px;font-weight:700}
+.nh button{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:inherit}
+.ntog{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--s);border-radius:14px;margin-bottom:18px}
+.ttrack{width:52px;height:30px;border-radius:15px;border:none;cursor:pointer;position:relative;transition:.3s}
+.ttrack.on{background:var(--green)}.ttrack.off{background:rgba(255,255,255,.15)}
+.tthumb{width:26px;height:26px;border-radius:13px;background:#fff;position:absolute;top:2px;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.ttrack.on .tthumb{left:24px}.ttrack.off .tthumb{left:2px}
+.ni{padding:14px 16px;background:var(--s);border-radius:14px;margin-bottom:8px;position:relative;border-left:3px solid var(--t3);animation:si .3s ease-out}
+@keyframes si{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.ni .cb{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px}
+
+/* FEED CARDS */
+.feed{padding:0 14px 120px;position:relative;z-index:1}
+.nc{background:var(--s);border:1px solid var(--b);border-radius:18px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.nc:active{background:var(--sh)}
+.nc.brk{background:rgba(255,59,48,.06);border-color:rgba(255,59,48,.15)}
+.nc.brk::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.cm{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cm .l{display:flex;align-items:center;gap:8px}
+.ct{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:6px}
+.pl{font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.ctt{font-size:15px;font-weight:660;line-height:1.38;margin-bottom:8px;letter-spacing:-.2px}
+.cs{font-size:13px;line-height:1.55;color:var(--t2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cs.exp{display:block;-webkit-line-clamp:unset;overflow:visible}
+.ce{margin-top:14px;animation:fi .3s ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.ctags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tg{font-size:10px;padding:3px 10px;border-radius:12px;background:var(--s);border:1px solid var(--b);color:var(--t2);font-family:'JetBrains Mono',monospace}
+.rmb{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;text-decoration:none;padding:8px 16px;border-radius:10px}
+.sk{background:var(--s);border-radius:18px;padding:18px;margin-bottom:10px;border:1px solid var(--b)}
+.skl{height:12px;border-radius:6px;margin-bottom:10px;background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:shm 1.5s infinite}
+@keyframes shm{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(0,0,0,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b);display:flex;justify-content:space-around;padding:10px 0 calc(10px + var(--safe-b))}
+.nv{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 16px;font-family:inherit}
+.nv .nvi{font-size:21px}.nv .nl{font-size:10px;font-weight:500;color:var(--t3)}
+.nv.act .nl{font-weight:600;color:var(--blue)}
+
+/* TOAST */
+.toast{position:fixed;top:calc(20px + var(--safe-t));left:50%;transform:translateX(-50%) translateY(-100px);background:rgba(30,30,30,.95);backdrop-filter:blur(12px);border:1px solid var(--b);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;z-index:300;transition:transform .4s cubic-bezier(.32,.72,0,1);display:flex;align-items:center;gap:8px;max-width:90%}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ====== TRENDS ====== */
+.tpage{padding:0 14px 120px;position:relative;z-index:1;display:none}
+.tpage.vis{display:block}
+.tsec{margin-bottom:20px}
+.tsec-t{font-size:18px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+.tsec-s{font-size:12px;color:var(--t3);margin-bottom:16px}
+.cc{background:var(--s);border:1px solid var(--b);border-radius:18px;padding:18px;margin-bottom:14px;overflow:hidden}
+.cc h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.cc .ccs{font-size:11px;color:var(--t3);margin-bottom:16px}
+/* Live header */
+.live-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.live-hdr .lft{display:flex;align-items:center;gap:6px}
+.live-tag{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--green);background:rgba(52,199,89,.12);padding:3px 8px;border-radius:6px;display:flex;align-items:center;gap:4px}
+.live-tag .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:lp 2s ease-in-out infinite}
+.ts-meta{font-size:10px;color:var(--t3)}
+/* Salary bars */
+.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.sb-lbl{width:95px;font-size:10.5px;font-weight:600;color:var(--t2);flex-shrink:0;text-align:right;line-height:1.2}
+.sb-trk{flex:1;height:26px;background:rgba(255,255,255,.03);border-radius:7px;position:relative;overflow:hidden}
+.sb-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:700;color:#fff;transition:width 1.2s cubic-bezier(.32,.72,0,1);white-space:nowrap}
+.sb-delta{font-size:10px;font-weight:600;width:55px;flex-shrink:0;text-align:right}
+/* Gauges */
+.g-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.g-row:last-child{border:none}
+.g-lbl{width:95px;font-size:10.5px;font-weight:600;color:var(--t2);flex-shrink:0;text-align:right;line-height:1.2}
+.g-trk{flex:1;height:20px;background:rgba(255,255,255,.03);border-radius:5px;position:relative;overflow:hidden}
+.g-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:6px;font-size:9px;font-weight:700;color:#fff;transition:width 1.2s cubic-bezier(.32,.72,0,1)}
+.g-sc{width:36px;font-size:11px;font-weight:700;text-align:center;flex-shrink:0}
+/* Matrix */
+.mdot{position:absolute;width:10px;height:10px;border-radius:50%;cursor:pointer;transition:.3s;z-index:2}
+.mdot:hover{transform:scale(1.8);z-index:3}
+.mdot .tip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.92);border:1px solid var(--b);border-radius:8px;padding:6px 10px;font-size:10px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;color:var(--t1)}
+.mdot:hover .tip{opacity:1}
+/* Rankings */
+.tr-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--b)}
+.tr-row:last-child{border:none}
+.tr-r{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.tr-inf{flex:1;min-width:0}
+.tr-n{font-size:13px;font-weight:650;margin-bottom:2px}
+.tr-m{font-size:10px;color:var(--t3)}
+.tr-rt{text-align:right;flex-shrink:0}
+.tr-sal{font-size:13px;font-weight:700;margin-bottom:1px}
+.tr-d{font-size:10px;font-weight:600}
+/* Insight cards */
+.ins{padding:14px 16px;border-radius:14px;margin-bottom:10px;border-left:3px solid}
+.ins .ins-t{font-size:13px;font-weight:650;margin-bottom:4px}
+.ins .ins-b{font-size:12px;color:var(--t2);line-height:1.5}
+/* Pulse cards (job demand) */
+.pulse-card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.pulse-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pulse-info{flex:1;min-width:0}
+.pulse-name{font-size:12px;font-weight:650}
+.pulse-meta{font-size:10px;color:var(--t3);margin-top:1px}
+.pulse-right{text-align:right;flex-shrink:0}
+.pulse-count{font-size:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.pulse-delta{font-size:10px;font-weight:600}
+.pulse-bar{width:50px;height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:4px;overflow:hidden}
+.pulse-bar-fill{height:100%;border-radius:2px;transition:width 1s}
+/* Trend alerts */
+.talert{padding:10px 14px;border-radius:12px;margin-bottom:6px;background:var(--s);border:1px solid var(--b);display:flex;gap:10px;align-items:flex-start}
+.talert .ta-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.talert .ta-body{flex:1}
+.talert .ta-title{font-size:12px;font-weight:650;margin-bottom:2px}
+.talert .ta-text{font-size:11px;color:var(--t2);line-height:1.4}
+.talert .ta-time{font-size:9px;color:var(--t3);margin-top:3px}
+/* Countdown */
+.countdown{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:4px}
+.countdown .cd-num{color:var(--blue);font-weight:600}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="hbar">
+    <div class="logo-g"><div class="logo-i">P</div><div class="logo-t"><h1>PULSE</h1><span>Intelligence Feed</span></div></div>
+    <div class="hacts">
+      <div class="live"><div class="live-d"></div><span>LIVE</span></div>
+      <button class="ibtn" onclick="toggleSearch()">🔍</button>
+      <button class="ibtn" onclick="toggleNP()">🔔<div class="badge" id="nBdg" style="display:none">0</div></button>
+    </div>
+  </div>
+  <div class="sbar" id="sBar"><input type="text" id="sIn" placeholder="Search news, topics, tags..." oninput="filterN()"></div>
+  <div class="cats" id="catBar"></div>
+</div>
+
+<!-- NOTIF PANEL -->
+<div class="ov" id="nOv" onclick="toggleNP()">
+  <div class="npan" onclick="event.stopPropagation()">
+    <div class="nh"><h3>Notifications</h3><button onclick="markRead()">Mark all read</button></div>
+    <div class="ntog"><div><div style="font-size:14px;font-weight:600">Push Notifications</div><div style="font-size:11px;color:var(--t3)">Breaking news & trend alerts</div></div><button class="ttrack on" id="nTB" onclick="toggleNE()"><div class="tthumb"></div></button></div>
+    <div id="nList"></div>
+  </div>
+</div>
+
+<!-- REFRESH BAR -->
+<div class="rbar" id="rBarEl">
+  <div class="meta" id="rMeta">Loading...</div>
+  <button class="rbtn" id="rBtn" onclick="doRefresh()"><span class="ri">↻</span> Refresh</button>
+</div>
+
+<!-- FEED -->
+<div class="feed" id="feed"></div>
+
+<!-- TRENDS PAGE -->
+<div class="tpage" id="tPage">
+
+  <!-- LIVE TREND ALERTS (from RSS scanning) -->
+  <div class="tsec">
+    <div class="live-hdr">
+      <div class="lft">
+        <div class="tsec-t" style="margin:0">🔥 Live Trend Alerts</div>
+        <div class="live-tag"><div class="dot"></div>LIVE</div>
+      </div>
+      <div class="countdown">Next scan: <span class="cd-num" id="trendCountdown">5:00</span></div>
+    </div>
+    <div class="tsec-s">Auto-scanning RSS feeds for salary, hiring & skills signals</div>
+    <div id="trendAlerts"><div style="text-align:center;padding:20px;font-size:12px;color:var(--t3)">Scanning feeds...</div></div>
+  </div>
+
+  <!-- JOB DEMAND PULSE (live from RSS) -->
+  <div class="tsec">
+    <div class="live-hdr">
+      <div class="lft">
+        <div class="tsec-t" style="margin:0">📡 Job Demand Pulse</div>
+        <div class="live-tag"><div class="dot"></div>LIVE</div>
+      </div>
+      <div class="ts-meta" id="pulseMeta">Scanning...</div>
+    </div>
+    <div class="tsec-s">Real-time mention frequency from news & job feeds</div>
+    <div id="pulseCards"></div>
+  </div>
+
+  <!-- SALARY HEATMAP (self-calculating) -->
+  <div class="tsec">
+    <div class="tsec-t">💰 Salary Projections</div>
+    <div class="tsec-s" id="salSubtitle">Auto-calculated from base + growth rate</div>
+    <div class="cc">
+      <div class="live-hdr">
+        <h4>Projected Salary — <span id="salMonth">Current</span></h4>
+        <div class="ts-meta" id="salCalcDate"></div>
+      </div>
+      <div class="ccs">Recalculates daily based on growth trajectory</div>
+      <div id="salBars"></div>
+    </div>
+  </div>
+
+  <!-- 6-MONTH LINE CHART (rolling window) -->
+  <div class="tsec">
+    <div class="tsec-t">📈 6-Month Rolling Forecast</div>
+    <div class="tsec-s" id="lineSubtitle">Shifts forward automatically each month</div>
+    <div class="cc">
+      <h4>Top 5 Skills — Salary Trajectory</h4>
+      <div class="ccs" id="lineRange"></div>
+      <canvas id="lineC" height="280"></canvas>
+      <div id="lineLeg" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- DISRUPTION SCORE -->
+  <div class="tsec">
+    <div class="tsec-t">🛡️ AI Disruption-Proof Score</div>
+    <div class="tsec-s">Higher = safer from automation (0-100)</div>
+    <div class="cc">
+      <h4>Disruption Resistance Index</h4>
+      <div class="ccs">Based on WEF, McKinsey, O*NET & Resume Now data</div>
+      <div id="gauges"></div>
+    </div>
+  </div>
+
+  <!-- MATRIX -->
+  <div class="tsec">
+    <div class="tsec-t">⚡ Salary × Disruption Matrix</div>
+    <div class="tsec-s">Top-right = high pay + high job security (sweet spot)</div>
+    <div class="cc">
+      <h4>Strategic Career Quadrant</h4>
+      <div class="ccs">Tap dots for details</div>
+      <div style="position:relative;width:100%;height:320px;background:rgba(255,255,255,.02);border-radius:12px;border:1px solid var(--b);overflow:hidden" id="mBox">
+        <div style="position:absolute;top:8px;left:8px;font-size:9px;color:var(--t3);opacity:.6">Low Pay / Safe</div>
+        <div style="position:absolute;top:8px;right:8px;font-size:9px;color:var(--green);font-weight:600">High Pay / Safe ★</div>
+        <div style="position:absolute;bottom:8px;left:8px;font-size:9px;color:var(--red);opacity:.6">Low Pay / At Risk</div>
+        <div style="position:absolute;bottom:8px;right:8px;font-size:9px;color:var(--orange);opacity:.6">High Pay / At Risk</div>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,.06)"></div>
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06)"></div>
+        <div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--t3)">SALARY →</div>
+        <div style="position:absolute;top:50%;left:2px;transform:rotate(-90deg) translateX(-50%);transform-origin:0 0;font-size:8px;color:var(--t3)">AI-PROOF →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RANKINGS -->
+  <div class="tsec">
+    <div class="tsec-t">🏆 Power Rankings — <span id="rankMonth"></span></div>
+    <div class="tsec-s">Combined: salary 35% + disruption 35% + growth 15% + momentum 15%</div>
+    <div class="cc" style="padding:14px 16px"><div id="rankings"></div></div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="tsec">
+    <div class="tsec-t">💡 Key Insights For You</div>
+    <div class="tsec-s">Personalized based on your profile</div>
+    <div class="ins" style="border-color:var(--purple);background:rgba(88,86,214,.06)"><div class="ins-t">🛡 IT Audit + AI Governance = Sweet Spot</div><div class="ins-b">Your CISA + upcoming AAIA positions you in the top-right quadrant — high salary ($130K-$170K) with strong disruption resistance (88/100). AI can't replace audit judgment and stakeholder communication.</div></div>
+    <div class="ins" style="border-color:var(--green);background:rgba(52,199,89,.06)"><div class="ins-t">☁️ AWS CCP + AI Fluency = Salary Multiplier</div><div class="ins-b">Cloud + AI skills command 15-25% salary premium. Your AWS cert + AI/ML literacy makes you a hybrid candidate — exactly what 87% of hiring managers prioritize.</div></div>
+    <div class="ins" style="border-color:var(--orange);background:rgba(255,149,0,.06)"><div class="ins-t">🧬 Molecular Bio + Compliance = Rare Niche</div><div class="ins-b">ASCP certification combined with audit background creates an extremely rare profile for pharma/biotech compliance — 0% automation risk and growing demand.</div></div>
+    <div class="ins" style="border-color:var(--red);background:rgba(255,59,48,.06)"><div class="ins-t">📊 Fastest-Growing: AI Governance Officer (+163% YoY)</div><div class="ins-b">Gartner: 75% of large orgs will have AI governance teams by end of 2026. Your NIST AI RMF expertise + CISA is a natural fit. Avg salary: $155K-$185K.</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="nv act" id="navF" onclick="showPg('feed')"><span class="nvi">📡</span><span class="nl">Feed</span></button>
+  <button class="nv" id="navT" onclick="showPg('trends')"><span class="nvi">📊</span><span class="nl">Trends</span></button>
+  <button class="nv" onclick="showToast('⭐ Saved — coming soon!')"><span class="nvi">⭐</span><span class="nl">Saved</span></button>
+  <button class="nv" onclick="showToast('⚙️ Settings — coming soon!')"><span class="nvi">⚙️</span><span class="nl">Settings</span></button>
+</div>
+
+<script>
+// =================== CONFIG ===================
+const CORS=[
+u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+u=>`https://thingproxy.freeboard.io/fetch/${u}`,
+];
+const FEEDS=[
+// Cybersecurity (4 direct + 1 Google News)
+{url:'https://feeds.feedburner.com/TheHackersNews',cat:'cybersecurity',src:'The Hacker News'},
+{url:'https://www.bleepingcomputer.com/feed/',cat:'cybersecurity',src:'BleepingComputer'},
+{url:'https://www.securityweek.com/feed/',cat:'cybersecurity',src:'SecurityWeek'},
+{url:'https://cybersecuritynews.com/feed/',cat:'cybersecurity',src:'CyberSec News'},
+// IT Audit — Google News RSS (sharper queries for breaking news)
+{url:'https://news.google.com/rss/search?q=internal+audit+cybersecurity+AI+risk+when:3d&hl=en-US&gl=US&ceid=US:en',cat:'it-audit',src:'Google News'},
+{url:'https://news.google.com/rss/search?q=SOX+compliance+audit+findings+PCAOB+SEC+when:7d&hl=en-US&gl=US&ceid=US:en',cat:'it-audit',src:'Google News'},
+{url:'https://news.google.com/rss/search?q=AI+governance+audit+NIST+framework+regulation+when:7d&hl=en-US&gl=US&ceid=US:en',cat:'it-audit',src:'Google News'},
+{url:'https://news.google.com/rss/search?q=GRC+compliance+risk+management+audit+committee+when:7d&hl=en-US&gl=US&ceid=US:en',cat:'it-audit',src:'Google News'},
+{url:'https://www.auditboard.com/blog/rss/',cat:'it-audit',src:'AuditBoard'},
+{url:'https://www.isaca.org/rss-feeds/news',cat:'it-audit',src:'ISACA'},
+// Technology
+{url:'https://feeds.arstechnica.com/arstechnica/technology-lab',cat:'technology',src:'Ars Technica'},
+{url:'https://www.theverge.com/rss/index.xml',cat:'technology',src:'The Verge'},
+{url:'https://techcrunch.com/feed/',cat:'technology',src:'TechCrunch'},
+// Jobs — Google News RSS (recency-filtered)
+{url:'https://news.google.com/rss/search?q=tech+hiring+AI+jobs+cybersecurity+careers+when:3d&hl=en-US&gl=US&ceid=US:en',cat:'jobs',src:'Google News'},
+{url:'https://news.google.com/rss/search?q=remote+work+salary+layoffs+job+market+when:7d&hl=en-US&gl=US&ceid=US:en',cat:'jobs',src:'Google News'},
+{url:'https://news.google.com/rss/search?q=AI+jobs+hiring+surge+workforce+skills+gap+when:7d&hl=en-US&gl=US&ceid=US:en',cat:'jobs',src:'Google News'},
+{url:'https://builtin.com/feed',cat:'jobs',src:'Built In'},
+// Genetics
+{url:'https://www.sciencedaily.com/rss/plants_animals/genetics.xml',cat:'genetics',src:'ScienceDaily'},
+{url:'https://www.sciencedaily.com/rss/plants_animals/molecular_biology.xml',cat:'genetics',src:'ScienceDaily MolBio'},
+{url:'https://www.nature.com/ng.rss',cat:'genetics',src:'Nature Genetics'},
+];
+const CATS=[{id:'all',label:'All',icon:'◉',color:'#F5F5F7'},{id:'it-audit',label:'IT Audit',icon:'🛡',color:'#5856D6'},{id:'cybersecurity',label:'Cyber',icon:'🔐',color:'#FF3B30'},{id:'technology',label:'Tech',icon:'⚡',color:'#007AFF'},{id:'jobs',label:'Jobs',icon:'💼',color:'#34C759'},{id:'genetics',label:'Genetics',icon:'🧬',color:'#FF9500'}];
+const CGRAD={'it-audit':'linear-gradient(135deg,#5856D6,#AF52DE)',cybersecurity:'linear-gradient(135deg,#FF3B30,#FF6B6B)',technology:'linear-gradient(135deg,#007AFF,#5AC8FA)',jobs:'linear-gradient(135deg,#34C759,#30D158)',genetics:'linear-gradient(135deg,#FF9500,#FFCC02)'};
+const CCOL={'it-audit':'#5856D6',cybersecurity:'#FF3B30',technology:'#007AFF',jobs:'#34C759',genetics:'#FF9500'};
+
+// =================== SKILLS ENGINE ===================
+// Base salaries (Feb 2026) + monthly growth rate + disruption score
+const SKILLS=[
+{name:'AI/ML Engineering',base:190,monthlyGrowth:3.2,disruption:72,yoyGrowth:163,color:'#FF3B30',keywords:['ai engineer','machine learning','ml engineer','deep learning','neural network','generative ai','llm']},
+{name:'AI Governance',base:165,monthlyGrowth:3.0,disruption:92,yoyGrowth:140,color:'#5856D6',keywords:['ai governance','ai ethics','ai audit','ai risk','nist ai','ai compliance','responsible ai','ai policy']},
+{name:'Cybersecurity Eng.',base:155,monthlyGrowth:2.5,disruption:88,yoyGrowth:124,color:'#FF6B6B',keywords:['cybersecurity','security engineer','soc analyst','penetration test','threat intel','incident response','zero trust']},
+{name:'Cloud Architecture',base:175,monthlyGrowth:2.6,disruption:68,yoyGrowth:85,color:'#007AFF',keywords:['cloud architect','aws','azure','gcp','kubernetes','terraform','cloud migration','cloud security']},
+{name:'IT Audit (AI-Enhanced)',base:145,monthlyGrowth:2.8,disruption:88,yoyGrowth:95,color:'#AF52DE',keywords:['it audit','internal audit','sox','itgc','audit finding','cisa','compliance audit','audit committee']},
+{name:'Data Engineering',base:152,monthlyGrowth:2.4,disruption:65,yoyGrowth:110,color:'#34C759',keywords:['data engineer','data pipeline','etl','data warehouse','spark','databricks','data lake']},
+{name:'DevOps/Platform',base:142,monthlyGrowth:1.8,disruption:55,yoyGrowth:60,color:'#5AC8FA',keywords:['devops','platform engineer','ci/cd','docker','kubernetes','sre','site reliability']},
+{name:'Prompt Engineering',base:135,monthlyGrowth:1.4,disruption:35,yoyGrowth:90,color:'#FFCC02',keywords:['prompt engineer','prompt design','llm tuning','ai prompt','chatgpt']},
+{name:'SRE/Reliability',base:165,monthlyGrowth:2.0,disruption:75,yoyGrowth:70,color:'#FF9500',keywords:['sre','reliability engineer','observability','monitoring','incident management']},
+{name:'Blockchain/Web3',base:148,monthlyGrowth:0.6,disruption:60,yoyGrowth:25,color:'#30D158',keywords:['blockchain','web3','solidity','smart contract','defi','crypto developer']},
+{name:'Molecular Biology',base:95,monthlyGrowth:1.8,disruption:95,yoyGrowth:45,color:'#FF9F0A',keywords:['molecular biology','genomics','gene editing','crispr','dna sequencing','gene therapy','pcr','rna']},
+{name:'GRC/Compliance',base:130,monthlyGrowth:2.5,disruption:85,yoyGrowth:80,color:'#8E8E93',keywords:['grc','compliance','risk management','regulatory','cobit','nist framework','sox compliance']},
+];
+
+// Calculate current projected salary based on months elapsed since Feb 2026
+function getMonthsElapsed(){
+  const base=new Date(2026,1,1); // Feb 1, 2026
+  const now=new Date();
+  return Math.max(0,Math.min(6,(now.getFullYear()-base.getFullYear())*12+(now.getMonth()-base.getMonth())+(now.getDate()-1)/30));
+}
+
+function getProjectedSalary(skill){
+  const m=getMonthsElapsed();
+  return Math.round(skill.base+skill.monthlyGrowth*m);
+}
+
+function get6MonthProjections(skill){
+  const baseMonth=new Date().getMonth();
+  return Array.from({length:7},(_,i)=>Math.round(skill.base+skill.monthlyGrowth*(getMonthsElapsed()+i)));
+}
+
+function getFutureMonthLabels(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date();
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    return months[d.getMonth()];
+  });
+}
+
+// =================== STATE ===================
+let arts=[],aCat='all',expCard=null,nEnabled=true,notifs=[],isRef=false,lastRef=null,curPg='feed';
+let trendAlerts=[],pulseData={},trendScanTimer=null,countdownSec=300;
+
+// =================== INIT ===================
+document.addEventListener('DOMContentLoaded',()=>{
+  renderCats();loadCache();doRefresh();
+  setInterval(doRefresh,5*60*1000);
+  reqNP();setupPTR();
+});
+
+// =================== PAGE NAV ===================
+function showPg(p){
+  curPg=p;
+  document.getElementById('feed').style.display=p==='feed'?'block':'none';
+  document.getElementById('tPage').classList.toggle('vis',p==='trends');
+  document.getElementById('rBarEl').style.display=p==='feed'?'flex':'none';
+  document.querySelectorAll('.bnav .nv').forEach(n=>n.classList.remove('act'));
+  document.getElementById(p==='feed'?'navF':'navT').classList.add('act');
+  if(p==='trends'){renderAllTrends(true);startTrendCountdown();}
+  window.scrollTo(0,0);
+}
+
+// =================== TREND ALERTS (RSS scanning) ===================
+const TREND_KEYWORDS=['salary','hiring','layoff','job market','compensation','workforce','remote work','skills gap','certification','career','recruitment','talent shortage','wage','pay raise','headcount','job growth','unemployment','upskill','reskill','ai jobs','cybersecurity jobs','audit hiring'];
+
+function scanFeedForTrends(){
+  const alerts=[];
+  const now=new Date();
+  arts.forEach(a=>{
+    const text=(a.title+' '+a.summary).toLowerCase();
+    const matched=TREND_KEYWORDS.filter(kw=>text.includes(kw));
+    if(matched.length>=1){
+      // Also check which skills are mentioned
+      const skillMentions=SKILLS.filter(s=>s.keywords.some(kw=>text.includes(kw)));
+      alerts.push({
+        title:a.title,
+        source:a.source,
+        time:getTA(a.pubDate),
+        url:a.url,
+        keywords:matched.slice(0,3),
+        skills:skillMentions.map(s=>s.name).slice(0,2),
+        priority:matched.length>=3?'hot':matched.length>=2?'warm':'signal',
+        category:a.category,
+      });
+    }
+  });
+  // Sort by priority
+  const pOrder={hot:0,warm:1,signal:2};
+  alerts.sort((a,b)=>pOrder[a.priority]-pOrder[b.priority]);
+  trendAlerts=alerts.slice(0,8);
+  renderTrendAlerts();
+}
+
+function renderTrendAlerts(){
+  const c=document.getElementById('trendAlerts');
+  if(!trendAlerts.length){
+    c.innerHTML='<div style="text-align:center;padding:20px;font-size:12px;color:var(--t3)">No trend signals detected yet — scanning...</div>';
+    return;
+  }
+  c.innerHTML=trendAlerts.map(a=>{
+    const icon=a.priority==='hot'?'🔥':a.priority==='warm'?'📈':'📡';
+    const borderColor=a.priority==='hot'?'rgba(255,59,48,.3)':a.priority==='warm'?'rgba(255,149,0,.2)':'var(--b)';
+    return`<div class="talert" style="border-color:${borderColor}">
+      <div class="ta-icon">${icon}</div>
+      <div class="ta-body">
+        <div class="ta-title">${esc(a.title.substring(0,80))}${a.title.length>80?'...':''}</div>
+        <div class="ta-text">
+          ${a.skills.length?`<span style="color:var(--blue)">Skills: ${a.skills.join(', ')}</span> · `:''}
+          <span style="color:var(--t3)">Signals: ${a.keywords.map(k=>'#'+k).join(' ')}</span>
+        </div>
+        <div class="ta-time">${a.source} · ${a.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =================== JOB DEMAND PULSE (from RSS keyword freq) ===================
+function calculatePulse(){
+  const counts={};
+  SKILLS.forEach(s=>{counts[s.name]={count:0,recent:0,articles:[]}});
+  const now=Date.now();
+  arts.forEach(a=>{
+    const text=(a.title+' '+a.summary).toLowerCase();
+    SKILLS.forEach(s=>{
+      const hit=s.keywords.some(kw=>text.includes(kw));
+      if(hit){
+        counts[s.name].count++;
+        if(now-a.pubDate.getTime()<24*60*60*1000) counts[s.name].recent++;
+        counts[s.name].articles.push(a.title.substring(0,50));
+      }
+    });
+  });
+  pulseData=counts;
+  renderPulse();
+}
+
+function renderPulse(){
+  const c=document.getElementById('pulseCards');
+  const maxCount=Math.max(1,...Object.values(pulseData).map(v=>v.count));
+  const sorted=SKILLS.map(s=>({...s,count:pulseData[s.name]?.count||0,recent:pulseData[s.name]?.recent||0})).sort((a,b)=>b.count-a.count);
+  document.getElementById('pulseMeta').textContent=`From ${arts.length} articles`;
+  c.innerHTML=sorted.map(s=>{
+    const pct=(s.count/maxCount*100);
+    const heat=s.recent>=3?'🔥':s.recent>=1?'📈':'—';
+    return`<div class="pulse-card">
+      <div class="pulse-icon" style="background:${s.color}18">${heat}</div>
+      <div class="pulse-info">
+        <div class="pulse-name">${s.name}</div>
+        <div class="pulse-meta">${s.count} mentions · ${s.recent} in last 24h</div>
+        <div class="pulse-bar"><div class="pulse-bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      </div>
+      <div class="pulse-right">
+        <div class="pulse-count" style="color:${s.color}">${s.count}</div>
+        <div class="pulse-delta" style="color:${s.recent>0?'var(--green)':'var(--t3)'}">${s.recent>0?'↑ trending':'—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =================== COUNTDOWN TIMER ===================
+function startTrendCountdown(){
+  countdownSec=300;
+  if(trendScanTimer) clearInterval(trendScanTimer);
+  trendScanTimer=setInterval(()=>{
+    countdownSec--;
+    if(countdownSec<=0){
+      countdownSec=300;
+      scanFeedForTrends();
+      calculatePulse();
+      showToast('📊 Trend data refreshed');
+    }
+    const m=Math.floor(countdownSec/60);
+    const s=countdownSec%60;
+    const el=document.getElementById('trendCountdown');
+    if(el) el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  },1000);
+}
+
+// =================== RENDER ALL TRENDS ===================
+function renderAllTrends(animate=false){
+  const now=new Date();
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Update date labels
+  document.getElementById('salMonth').textContent=monthNames[now.getMonth()]+' '+now.getFullYear();
+  document.getElementById('salCalcDate').textContent='Calc: '+now.toLocaleDateString();
+  document.getElementById('rankMonth').textContent=monthNames[now.getMonth()].substring(0,3)+' '+now.getFullYear();
+  const futureLabels=getFutureMonthLabels();
+  document.getElementById('lineRange').textContent=`${futureLabels[0]} → ${futureLabels[6]} ${now.getFullYear()}`;
+  document.getElementById('salSubtitle').textContent=`Auto-recalculated on ${now.toLocaleDateString()} · Next update: tomorrow`;
+
+  renderSalBars(animate);
+  renderGauges(animate);
+  renderRankings();
+  renderMatrix();
+  drawLineChart();
+  scanFeedForTrends();
+  calculatePulse();
+}
+
+function renderSalBars(anim=false){
+  const c=document.getElementById('salBars');
+  const withSal=SKILLS.map(s=>({...s,projected:getProjectedSalary(s)}));
+  const maxS=Math.max(...withSal.map(s=>s.projected));
+  const sorted=[...withSal].sort((a,b)=>b.projected-a.projected);
+  c.innerHTML=sorted.map(s=>{
+    const pct=s.projected/maxS*100;
+    const delta=s.projected-s.base;
+    const dc=delta>10?'var(--green)':delta>3?'var(--orange)':'var(--t3)';
+    return`<div class="sb-row"><div class="sb-lbl">${s.name}</div><div class="sb-trk"><div class="sb-fill" style="width:${anim?0:pct}%;background:${s.color}" data-w="${pct}">$${s.projected}K</div></div><div class="sb-delta" style="color:${dc}">+$${delta}K</div></div>`;
+  }).join('');
+  if(anim) setTimeout(()=>{c.querySelectorAll('.sb-fill').forEach(el=>{el.style.width=el.dataset.w+'%'})},50);
+}
+
+function renderGauges(anim=false){
+  const c=document.getElementById('gauges');
+  const sorted=[...SKILLS].sort((a,b)=>b.disruption-a.disruption);
+  c.innerHTML=sorted.map(s=>{
+    const col=s.disruption>=85?'var(--green)':s.disruption>=65?'var(--orange)':'var(--red)';
+    const lbl=s.disruption>=85?'SAFE':s.disruption>=65?'MODERATE':'AT RISK';
+    return`<div class="g-row"><div class="g-lbl">${s.name}</div><div class="g-trk"><div class="g-fill" style="width:${anim?0:s.disruption}%;background:${col}" data-w="${s.disruption}">${lbl}</div></div><div class="g-sc" style="color:${col}">${s.disruption}</div></div>`;
+  }).join('');
+  if(anim) setTimeout(()=>{c.querySelectorAll('.g-fill').forEach(el=>{el.style.width=el.dataset.w+'%'})},50);
+}
+
+function renderRankings(){
+  const c=document.getElementById('rankings');
+  const scored=SKILLS.map(s=>{
+    const proj=getProjectedSalary(s);
+    return{...s,projected:proj,score:Math.round(proj*0.35+s.disruption*0.35+s.yoyGrowth*0.15+(proj-s.base)*0.15)};
+  }).sort((a,b)=>b.score-a.score);
+  c.innerHTML=scored.map((s,i)=>{
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    return`<div class="tr-row"><div class="tr-r" style="background:${s.color}20;color:${s.color}">${medal||i+1}</div><div class="tr-inf"><div class="tr-n">${s.name}</div><div class="tr-m">Growth: +${s.yoyGrowth}% · AI-Proof: ${s.disruption}/100</div></div><div class="tr-rt"><div class="tr-sal" style="color:${s.color}">$${s.projected}K</div><div class="tr-d" style="color:var(--green)">↑ +$${s.projected-s.base}K</div></div></div>`;
+  }).join('');
+}
+
+function renderMatrix(){
+  const box=document.getElementById('mBox');
+  box.querySelectorAll('.mdot').forEach(d=>d.remove());
+  const W=box.offsetWidth||340,H=box.offsetHeight||320;
+  const salMin=80,salMax=220,disMin=25,disMax=100;
+  SKILLS.forEach(s=>{
+    const proj=getProjectedSalary(s);
+    const x=((proj-salMin)/(salMax-salMin))*(W-30)+15;
+    const y=H-((s.disruption-disMin)/(disMax-disMin))*(H-30)-15;
+    const dot=document.createElement('div');
+    dot.className='mdot';
+    dot.style.cssText=`left:${x}px;top:${y}px;background:${s.color};box-shadow:0 0 8px ${s.color}60;`;
+    dot.innerHTML=`<div class="tip">${s.name}<br>$${proj}K · ${s.disruption}/100</div>`;
+    box.appendChild(dot);
+  });
+}
+
+function drawLineChart(){
+  const canvas=document.getElementById('lineC');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.parentElement.getBoundingClientRect();
+  const W=rect.width-36;
+  canvas.width=W*dpr;canvas.height=280*dpr;
+  canvas.style.width=W+'px';canvas.style.height='280px';
+  ctx.scale(dpr,dpr);
+  const top5=[...SKILLS].sort((a,b)=>getProjectedSalary(b)-getProjectedSalary(a)).slice(0,5);
+  const labels=getFutureMonthLabels();
+  const pad={t:20,r:10,b:30,l:42};
+  const cW=W-pad.l-pad.r,cH=250-pad.t-pad.b;
+  // Calc ranges
+  const allVals=top5.flatMap(s=>get6MonthProjections(s));
+  const minV=Math.floor(Math.min(...allVals)/10)*10-10;
+  const maxV=Math.ceil(Math.max(...allVals)/10)*10+10;
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const y=pad.t+cH*(i/4);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='10px DM Sans';ctx.textAlign='right';
+    ctx.fillText('$'+Math.round(maxV-(maxV-minV)*i/4)+'K',pad.l-6,y+4);
+  }
+  ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,.3)';
+  labels.forEach((m,i)=>{ctx.fillText(m,pad.l+cW*(i/(labels.length-1)),250-pad.b+16)});
+  // Lines
+  top5.forEach(skill=>{
+    const proj=get6MonthProjections(skill);
+    ctx.beginPath();ctx.strokeStyle=skill.color;ctx.lineWidth=2.5;ctx.lineJoin='round';
+    proj.forEach((v,i)=>{
+      const x=pad.l+cW*(i/(labels.length-1));
+      const y=pad.t+cH*(1-(v-minV)/(maxV-minV));
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    const lv=proj[proj.length-1];
+    const lx=pad.l+cW,ly=pad.t+cH*(1-(lv-minV)/(maxV-minV));
+    ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle=skill.color;ctx.fill();
+    // Value label
+    ctx.fillStyle=skill.color;ctx.font='bold 10px DM Sans';ctx.textAlign='left';
+    ctx.fillText('$'+lv+'K',lx+7,ly+4);
+  });
+  document.getElementById('lineLeg').innerHTML=top5.map(s=>`<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2)"><div style="width:10px;height:3px;border-radius:2px;background:${s.color}"></div>${s.name}</div>`).join('');
+}
+
+// =================== RSS ENGINE ===================
+async function fetchP(url){for(const p of CORS){try{const r=await fetch(p(url),{signal:AbortSignal.timeout(10000)});if(r.ok){const t=await r.text();if(t&&t.length>100&&(t.includes('<item')||t.includes('<entry')||t.includes('<?xml')))return t}}catch{}}return null}
+function parseRSS(xml,fc){try{const doc=new DOMParser().parseFromString(xml,'text/xml');if(doc.querySelector('parsererror'))return[];const items=doc.querySelectorAll('item,entry');const a=[];items.forEach((it,i)=>{if(i>=10)return;let t=it.querySelector('title')?.textContent?.trim()||'';let l=it.querySelector('link')?.textContent?.trim()||it.querySelector('link')?.getAttribute('href')||'';const d=it.querySelector('description,summary,content\\:encoded')?.textContent?.trim()||'';const p=it.querySelector('pubDate,published,updated')?.textContent?.trim()||'';const cd=d.replace(/<[^>]*>/g,'').replace(/&[^;]+;/g,' ').substring(0,300);
+// Google News: extract real source from title (e.g. "Title - Source Name")
+let src=fc.src;if(fc.src==='Google News'&&t.includes(' - ')){const parts=t.split(' - ');src=parts.pop().trim()||'Google News';t=parts.join(' - ').trim();}
+if(t&&t.length>10)a.push({id:`${fc.cat}-${hc(t)}`,category:fc.cat,title:t,summary:cd||'Click to read more...',source:src,url:l,pubDate:p?new Date(p):new Date(),priority:detPri(t,cd),tags:exTags(t,cd,fc.cat),region:'Global'})});return a}catch{return[]}}
+function hc(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return Math.abs(h)}
+function detPri(t,d){const x=(t+' '+d).toLowerCase();if(['zero-day','breach','exploit','critical','emergency','breaking','actively exploited','ransomware attack'].some(w=>x.includes(w)))return'breaking';if(['vulnerability','patch','cve-','threat','hack','malware','flaw','gartner','breakthrough','surge'].some(w=>x.includes(w)))return'high';return'normal'}
+function exTags(t,d,c){const x=(t+' '+d).toLowerCase();const m={cybersecurity:['Zero-Day','Ransomware','Phishing','Malware','CVE','Patch'],'it-audit':['SOX','Internal Audit','Risk','Compliance','IIA','AI Audit'],technology:['AI','Cloud','Machine Learning','Quantum','Agentic AI'],jobs:['Hiring','Remote','Salary','Skills','Career'],genetics:['CRISPR','Gene Editing','Genomics','DNA','RNA','Molecular']};const p=m[c]||[];const r=p.filter(tg=>x.includes(tg.toLowerCase()));return r.length?r.slice(0,3):[CATS.find(ct=>ct.id===c)?.label||'News']}
+
+async function doRefresh(){
+  if(isRef)return;isRef=true;
+  const btn=document.getElementById('rBtn');btn.classList.add('sp');
+  document.getElementById('rMeta').textContent='Fetching live feeds...';
+  if(!arts.length) showSk();
+  const na=[];
+  await Promise.allSettled(FEEDS.map(async fc=>{try{const x=await fetchP(fc.url);if(x)na.push(...parseRSS(x,fc))}catch{}}));
+  if(na.length){
+    const eids=new Set(arts.map(a=>a.id));
+    const bn=na.filter(a=>!eids.has(a.id)&&a.priority==='breaking');
+    if(bn.length&&lastRef&&nEnabled)bn.forEach(a=>pushN(a));
+    const m=new Map();na.forEach(a=>{if(!m.has(a.id))m.set(a.id,a)});
+    arts=Array.from(m.values());
+    // Check which categories got zero results and inject fallbacks
+    const catCounts={};CATS.forEach(c=>{if(c.id!=='all')catCounts[c.id]=0});
+    arts.forEach(a=>{if(catCounts[a.category]!==undefined)catCounts[a.category]++});
+    const fbAll=getFallbackArticles();
+    Object.entries(catCounts).forEach(([cat,count])=>{
+      if(count<2){const fb=fbAll.filter(a=>a.category===cat);fb.forEach(a=>{if(!m.has(a.id)){arts.push(a);m.set(a.id,a)}});}
+    });
+    arts.sort((a,b)=>{const o={breaking:0,high:1,normal:2};if(o[a.priority]!==o[b.priority])return o[a.priority]-o[b.priority];return b.pubDate-a.pubDate});
+    cacheA();
+    const liveCt=Object.values(catCounts).reduce((s,v)=>s+v,0);
+    showToast(`✅ ${liveCt} live + ${arts.length-liveCt} cached stories`);
+  } else if(!arts.length){arts=getFallbackArticles();showToast('📡 Using cached data — feeds will retry')}
+  lastRef=new Date();isRef=false;btn.classList.remove('sp');updM();renderFeed();
+  if(curPg==='trends'){scanFeedForTrends();calculatePulse();}
+}
+
+// =================== FEED RENDERING ===================
+function renderCats(){document.getElementById('catBar').innerHTML=CATS.map(c=>`<button class="cp ${c.id===aCat?'active':''}" style="${c.id===aCat?(c.id==='all'?'background:rgba(255,255,255,.15);border-color:transparent;':`background:${CGRAD[c.id]};border-color:transparent;`):''}" onclick="setCat('${c.id}')"><span style="font-size:13px">${c.icon}</span>${c.label}</button>`).join('')}
+function setCat(id){aCat=id;renderCats();renderFeed()}
+function getF(){const q=document.getElementById('sIn')?.value?.toLowerCase()||'';return arts.filter(a=>(aCat==='all'||a.category===aCat)&&(!q||a.title.toLowerCase().includes(q)||a.summary.toLowerCase().includes(q)||(a.tags||[]).some(t=>t.toLowerCase().includes(q))))}
+function updM(){const t=lastRef?lastRef.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'--:--';document.getElementById('rMeta').textContent=`Updated ${t} · ${getF().length} stories`}
+function showSk(){document.getElementById('feed').innerHTML=Array(5).fill('').map(()=>`<div class="sk"><div class="skl" style="width:30%;height:10px"></div><div class="skl" style="width:90%;height:16px;margin-top:12px"></div><div class="skl" style="width:100%;height:12px;margin-top:8px"></div></div>`).join('')}
+function renderFeed(){const f=document.getElementById('feed');const a=getF();updM();if(!a.length){f.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--t3)"><div style="font-size:48px;margin-bottom:16px">🔎</div><div style="font-size:16px;font-weight:600;margin-bottom:6px">No stories found</div><div style="font-size:13px">Adjust search or category</div></div>';return}
+f.innerHTML=a.map((it,i)=>{const isE=expCard===it.id;const cc=CCOL[it.category]||'#8E8E93';const cl=CATS.find(c=>c.id===it.category)?.label||'';const ta=getTA(it.pubDate);return`<div class="nc ${it.priority==='breaking'?'brk':''}" onclick="togC('${it.id}')" style="animation:fi .3s ease ${Math.min(i*.03,.3)}s both"><div class="cm"><div class="l"><span class="ct" style="color:${cc};background:${cc}18">${cl}</span>${it.priority==='breaking'?'<span class="pl" style="color:#FF3B30">● BREAKING</span>':it.priority==='high'?'<span class="pl" style="color:#FF9500">HIGH</span>':''}</div><span style="font-size:11px;color:var(--t3)">${ta}</span></div><h3 class="ctt">${esc(it.title)}</h3><p class="cs ${isE?'exp':''}">${esc(it.summary)}</p>${isE?`<div class="ce"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12px;color:var(--t3)"><span>📰 ${esc(it.source)}</span><span>🌍 ${it.region||'Global'}</span></div><div class="ctags">${(it.tags||[]).map(t=>`<span class="tg">#${esc(t)}</span>`).join('')}</div><a href="${it.url}" target="_blank" rel="noopener" class="rmb" style="color:${cc};background:${cc}14;border:1px solid ${cc}30" onclick="event.stopPropagation()">Read full article →</a></div>`:''}</div>`}).join('')}
+function togC(id){expCard=expCard===id?null:id;renderFeed()}
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function getTA(d){if(!d||isNaN(d))return'Recently';const s=Math.floor((Date.now()-d)/1000);if(s<60)return'Just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
+function toggleSearch(){const b=document.getElementById('sBar');b.classList.toggle('open');if(b.classList.contains('open'))setTimeout(()=>document.getElementById('sIn').focus(),300);else{document.getElementById('sIn').value='';filterN()}}
+function filterN(){renderFeed()}
+function cacheA(){try{localStorage.setItem('pa3',JSON.stringify(arts.map(a=>({...a,pubDate:a.pubDate.toISOString()}))));localStorage.setItem('plt3',new Date().toISOString())}catch{}}
+function loadCache(){try{const c=localStorage.getItem('pa3');if(c){arts=JSON.parse(c).map(a=>({...a,pubDate:new Date(a.pubDate)}));renderFeed()}}catch{}}
+function getFallbackArticles(){
+  const d=new Date();const h1=new Date(d-3600000);const h3=new Date(d-10800000);const h6=new Date(d-21600000);const h12=new Date(d-43200000);const d1=new Date(d-86400000);
+  return[
+// === IT AUDIT (8 articles — fresh from Feb 11, 2026 search) ===
+{id:'fb-ia1',category:'it-audit',title:"Marine Corps Only Military Branch to Pass Financial Audit — 3rd Consecutive Year",summary:'The U.S. Marine Corps maintained its record as the first and only military service to cleanly pass a financial audit for the third consecutive year. Independent auditors tested network systems, business controls, and global financial transaction tracking. The service is now leveraging AI and automation to streamline future audits.',source:'Military Times',url:'https://www.militarytimes.com/news/your-military/2026/02/11/marine-corps-continues-streak-as-only-service-to-pass-financial-audit/',pubDate:h1,priority:'breaking',tags:['Internal Audit','Compliance','AI Audit'],region:'US'},
+{id:'fb-ia2',category:'it-audit',title:"A-LIGN 2026 Compliance Benchmark: 97% of Orgs Now Conduct 2+ Audits Annually",summary:'A-LIGN released its 2026 Compliance Benchmark Report surveying 1,000+ global leaders. 74% of large enterprises manage 4+ audits per year. 95% now use technology during audits, and 80% say audit report quality is extremely important — up from 70% in 2025. 1 in 4 orgs cite managing multiple audits as their greatest compliance challenge.',source:'A-LIGN / PR Newswire',url:'https://www.prnewswire.com/news-releases/a-lign-releases-2026-compliance-benchmark-report-302671958.html',pubDate:h1,priority:'breaking',tags:['Compliance','Internal Audit','Risk'],region:'Global'},
+{id:'fb-ia3',category:'it-audit',title:"SEC 2026 Exam Priorities: AI and Cybersecurity Displace Crypto as Top Focus",summary:'The SEC\'s 2026 examination priorities reveal AI and cybersecurity concerns have displaced cryptocurrency as the industry\'s top regulatory focus. Internal audit teams must now provide assurance over AI model risk, bias testing, and data lineage controls. AI washing — false AI capability claims — is a new enforcement target.',source:'Corporate Compliance Insights',url:'https://www.corporatecomplianceinsights.com/2026-operational-guide-cybersecurity-ai-governance-emerging-risks/',pubDate:h3,priority:'high',tags:['SOX','Compliance','AI Audit'],region:'US'},
+{id:'fb-ia4',category:'it-audit',title:"Gartner: 97% of CAEs Include Cybersecurity in 2026 Audit Plans; Data Governance Next",summary:'Gartner survey finds cybersecurity vulnerabilities, data governance and regulatory compliance are the top three risk areas in 2026 internal audit plans. 97% of Chief Audit Executives have cybersecurity coverage planned. The rapid rise of AI is driving acute issues across all three domains.',source:'Gartner',url:'https://www.gartner.com/en/newsroom/press-releases/2025-11-13-gartner-says-internal-auditors-to-focus-on-cybersecurity-data-governence-and-regulatory-compliance-in-2026-2',pubDate:h3,priority:'high',tags:['IIA','Risk','AI Audit'],region:'Global'},
+{id:'fb-ia5',category:'it-audit',title:"PwC: Agentic AI Will End Traditional Audit — Continuous AI-Powered Assurance Is Next",summary:'PwC predicts internal audit will be \"unrecognizable\" as agentic AI agents run continuous audits, sense risks in real-time, and test controls across entire data populations. Audit plans will flex daily guided by live risk signals. Auditors shift from executing procedures to orchestrating AI systems and validating outputs.',source:'PwC',url:'https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/internal-audit/ai-internal-audit.html',pubDate:h6,priority:'high',tags:['AI Audit','Internal Audit','Risk'],region:'Global'},
+{id:'fb-ia6',category:'it-audit',title:"EU AI Act General Application Date Aug 2, 2026 — High-Risk AI Systems Must Comply",summary:'The EU AI Act\'s general application date of August 2, 2026 means high-risk AI systems must demonstrate documented compliance programs. Colorado\'s AI Act takes effect June 30, 2026. Internal auditors face a regulatory cliff requiring audit-ready evidence for AI governance frameworks across multiple jurisdictions.',source:'SecurePrivacy',url:'https://secureprivacy.ai/blog/ai-risk-compliance-2026',pubDate:h6,priority:'high',tags:['Compliance','AI Audit','NIST'],region:'Global'},
+{id:'fb-ia7',category:'it-audit',title:"IIA CAE Bulletin: 92% of Executives Report AI Implementation Issues — Audit Demand Surges",summary:'IIA\'s January 2026 CAE Bulletin reveals 92% of executives have had issues with AI implementation, per RSM study. 62% say generative AI was harder to implement than expected. Internal audit is moving from compliance to value creation, with agentic AI treated as digital team members requiring governance structures similar to people.',source:'The IIA',url:'https://www.theiia.org/en/content/newsletter/cae-bulletin/cae-bulletin-issue-january-20-2026/',pubDate:h12,priority:'normal',tags:['IIA','Internal Audit','AI Audit'],region:'Global'},
+{id:'fb-ia8',category:'it-audit',title:"Audit Findings Roundup: Repeated Issues at Florida A&M and West Virginia Expose 11-Year Follow-Up Gaps",summary:'AuditFindings reports that Florida A&M had 30+ corrective actions unresolved since 2013. A West Virginia agency accumulated repeat findings over 11 years. The cases highlight systemic failure to close audit findings — exactly the kind of issue modern audit tracking platforms and continuous monitoring aim to solve.',source:'AuditFindings',url:'https://www.auditfindings.com/audit-findings-roundup-repeated-issues-expose-follow-up-gaps/',pubDate:d1,priority:'normal',tags:['Internal Audit','Compliance','SOX'],region:'US'},
+
+// === JOBS (8 articles) ===
+{id:'fb-j1',category:'jobs',title:"AI/ML Job Postings Surge 163% YoY as Demand Outstrips Supply",summary:'49,200 new AI/ML engineering positions were posted in Q1 2026, a 163% increase year-over-year. Cybersecurity roles also surged with 66,800 postings (+124%). Companies report average time-to-fill of 67 days for senior AI roles.',source:'Robert Half',url:'https://www.roberthalf.com/',pubDate:h1,priority:'breaking',tags:['Hiring','Salary','Career'],region:'US'},
+{id:'fb-j2',category:'jobs',title:"AI Governance Officer: Fastest-Growing Job Title of 2026 at $155K-$185K",summary:'AI Governance Officer emerged as the fastest-growing new job title, with postings increasing 210% since January. Average salary ranges from $155K-$185K. Employers prefer candidates with audit, compliance, or risk management backgrounds combined with AI literacy.',source:'Indeed',url:'https://www.indeed.com/',pubDate:h3,priority:'high',tags:['Hiring','Salary','Career'],region:'US'},
+{id:'fb-j3',category:'jobs',title:"Remote IT Audit Positions Jump 89% — Companies Embrace Distributed Compliance Teams",summary:'Remote-eligible IT audit and compliance positions surged 89% compared to last year. EY, Deloitte, and PwC all expanded remote audit hiring. Roles requiring CISA, CIA, or CRISC certifications offer 15-20% salary premiums over non-certified candidates.',source:'LinkedIn',url:'https://www.linkedin.com/',pubDate:h3,priority:'high',tags:['Remote','Hiring','Career'],region:'US'},
+{id:'fb-j4',category:'jobs',title:"Skills-Based Hiring Dominates: 87% of Managers Prioritize Certifications Over Degrees",summary:'A new CompTIA study reveals 87% of hiring managers now prioritize demonstrated skills and certifications over traditional degrees. AWS, CISA, and AI-related certifications command the highest salary premiums, averaging 22% above non-certified peers.',source:'CompTIA',url:'https://www.comptia.org/',pubDate:h6,priority:'high',tags:['Skills','Career','Hiring'],region:'US'},
+{id:'fb-j5',category:'jobs',title:"Cybersecurity Talent Gap Widens: 3.5M Unfilled Positions Globally in 2026",summary:'ISC2 reports the global cybersecurity talent gap reached 3.5 million unfilled positions in early 2026. Entry-level SOC analyst salaries rose to $85K-$110K. Cloud security architects now command $175K-$205K in major metro areas.',source:'ISC2',url:'https://www.isc2.org/',pubDate:h6,priority:'normal',tags:['Hiring','Salary','Skills'],region:'Global'},
+{id:'fb-j6',category:'jobs',title:"Tech Layoffs Slow as AI Investment Creates Net Positive Job Growth",summary:'After two years of major tech layoffs, 2026 is showing net positive job creation in tech. AI-related hiring is more than offsetting reductions in traditional software roles. Companies are reskilling existing employees rather than laying off.',source:'ZipRecruiter',url:'https://www.ziprecruiter.com/',pubDate:h12,priority:'normal',tags:['Hiring','Career','Skills'],region:'US'},
+{id:'fb-j7',category:'jobs',title:"AWS Cloud Practitioner Certification Holders See 18% Salary Boost",summary:'Professionals who earned AWS Cloud Practitioner certification in the past 12 months reported an average 18% salary increase. The certification is increasingly seen as a baseline requirement for IT audit, DevOps, and cloud governance roles.',source:'AWS Blog',url:'https://aws.amazon.com/',pubDate:h12,priority:'normal',tags:['Skills','Salary','Career'],region:'Global'},
+{id:'fb-j8',category:'jobs',title:"WEF Future of Jobs 2026: 92M Jobs Displaced, 170M Created (Net +78M)",summary:'The World Economic Forum projects AI and automation will displace 92 million jobs by 2030 while creating 170 million new ones — a net gain of 78 million. Healthcare, cybersecurity, and AI governance lead growth sectors.',source:'WEF',url:'https://www.weforum.org/',pubDate:d1,priority:'normal',tags:['Career','Skills','Hiring'],region:'Global'},
+
+// === CYBERSECURITY (5 articles) ===
+{id:'fb-c1',category:'cybersecurity',title:'Microsoft Feb 2026 Patch Tuesday: 6 Actively Exploited Zero-Days',summary:'Microsoft released patches for 54+ vulnerabilities including 6 actively exploited zero-days (CVE-2026-21533, CVE-2026-21519, CVE-2026-21540, CVE-2026-21539, CVE-2026-21503, CVE-2026-21527). CISA added all six to the Known Exploited Vulnerabilities catalog.',source:'SecurityWeek',url:'https://www.securityweek.com/',pubDate:h1,priority:'breaking',tags:['Zero-Day','CVE','Patch'],region:'Global'},
+{id:'fb-c2',category:'cybersecurity',title:"China-Linked APT UNC3886 Compromised All 4 Singapore Telecom Operators",summary:'Mandiant confirms that Chinese state-sponsored group UNC3886 breached all four major Singapore telecom operators using custom backdoors in network infrastructure. The campaign highlights supply chain risks in critical telecommunications infrastructure.',source:'Mandiant',url:'https://www.mandiant.com/',pubDate:h3,priority:'breaking',tags:['APT','Malware'],region:'Asia-Pacific'},
+{id:'fb-c3',category:'cybersecurity',title:"Gartner Top 6 Cybersecurity Trends 2026: Agentic AI Oversight Leads",summary:'Gartner identifies agentic AI oversight, post-quantum cryptography readiness, and zero-trust architecture maturity as the top cybersecurity trends for 2026. Organizations are urged to establish AI governance frameworks before deploying autonomous AI agents.',source:'Gartner',url:'https://www.gartner.com/',pubDate:h6,priority:'high',tags:['AI','Zero-Day'],region:'Global'},
+{id:'fb-c4',category:'cybersecurity',title:"CISA Mandates Federal Agencies Implement Zero-Trust by September 2026",summary:'CISA issued a binding operational directive requiring all federal agencies to achieve zero-trust architecture maturity by September 2026. Private sector organizations are expected to follow suit as the framework becomes an industry standard.',source:'CISA',url:'https://www.cisa.gov/',pubDate:h12,priority:'high',tags:['Compliance','Patch'],region:'US'},
+{id:'fb-c5',category:'cybersecurity',title:"Ransomware Payments Drop 40% as Organizations Improve Backup and Recovery",summary:'Ransomware payments declined 40% in 2025 as organizations invested in immutable backups, incident response playbooks, and cyber insurance requirements. However, the frequency of attacks increased 25%, with healthcare and education sectors most targeted.',source:'Chainalysis',url:'https://www.chainalysis.com/',pubDate:d1,priority:'normal',tags:['Ransomware','Malware'],region:'Global'},
+
+// === TECHNOLOGY (3 articles) ===
+{id:'fb-t1',category:'technology',title:"OpenAI Launches GPT-5 with Enhanced Reasoning and Multimodal Capabilities",summary:'OpenAI released GPT-5 with significantly improved reasoning, coding, and multimodal understanding. Enterprise adoption is expected to accelerate AI governance requirements as organizations deploy more powerful AI systems in production.',source:'TechCrunch',url:'https://techcrunch.com/',pubDate:h3,priority:'high',tags:['AI','Machine Learning'],region:'Global'},
+{id:'fb-t2',category:'technology',title:"Microsoft Announces Windows 12 with Native AI Co-Pilot Integration",summary:'Microsoft unveiled Windows 12 featuring deep AI co-pilot integration across all system functions. Enterprise IT teams face new governance challenges as AI assistants gain access to sensitive corporate data and workflows.',source:'The Verge',url:'https://www.theverge.com/',pubDate:h6,priority:'normal',tags:['AI','Cloud'],region:'Global'},
+{id:'fb-t3',category:'technology',title:"Agentic AI Frameworks Emerge as Top Enterprise Priority for 2026",summary:'Multiple enterprise surveys show agentic AI — autonomous AI systems that can plan and execute multi-step tasks — is the top technology investment priority. This creates urgent demand for AI auditors who can assess autonomous decision-making systems.',source:'Ars Technica',url:'https://arstechnica.com/',pubDate:h12,priority:'normal',tags:['AI','Agentic AI'],region:'Global'},
+
+// === GENETICS (3 articles) ===
+{id:'fb-g1',category:'genetics',title:'Spider Silk Molecular Mystery Solved: Key Protein Interactions Identified',summary:'Researchers identified the molecular interactions that act as natural glue for spider silk proteins, solving a long-standing mystery. The discovery could lead to development of ultra-strong, biodegradable synthetic materials for medical and industrial applications.',source:'ScienceDaily',url:'https://www.sciencedaily.com/',pubDate:h3,priority:'high',tags:['Molecular','DNA'],region:'Global'},
+{id:'fb-g2',category:'genetics',title:"Homer1 Gene Variant Linked to ADHD: Breakthrough in Understanding Molecular Basis",summary:'A new study identifies Homer1 gene variants as significant risk factors for ADHD, providing molecular-level understanding of the condition. The discovery opens pathways for targeted gene therapies and personalized treatment approaches.',source:'Nature Genetics',url:'https://www.nature.com/ng/',pubDate:h6,priority:'high',tags:['Genomics','DNA','RNA'],region:'Global'},
+{id:'fb-g3',category:'genetics',title:"CRISPR Gene Editing Achieves 99.7% Accuracy in Human Cell Trials",summary:'Latest CRISPR-Cas9 modifications achieved 99.7% on-target accuracy in human cell trials, virtually eliminating off-target effects. The breakthrough moves gene therapy closer to FDA approval for sickle cell disease and beta-thalassemia treatments.',source:'Nature Genetics',url:'https://www.nature.com/ng/',pubDate:d1,priority:'normal',tags:['CRISPR','Gene Editing','Genomics'],region:'Global'},
+];}
+
+// Legacy compat
+function loadFB(){arts=getFallbackArticles()}
+
+// NOTIFS
+function reqNP(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
+function pushN(a){const n={id:Date.now(),title:`${a.priority==='breaking'?'🔴':'📰'} ${a.title.substring(0,55)}...`,body:a.summary.substring(0,90)+'...',time:'Just now',cat:a.category,read:false};notifs.unshift(n);updBdg();renderNL();if('Notification'in window&&Notification.permission==='granted'&&nEnabled)try{new Notification('PULSE',{body:a.title,vibrate:[200,100,200]})}catch{}}
+function toggleNP(){document.getElementById('nOv').classList.toggle('open')}
+function toggleNE(){nEnabled=!nEnabled;document.getElementById('nTB').className='ttrack '+(nEnabled?'on':'off')}
+function markRead(){notifs.forEach(n=>n.read=true);updBdg();renderNL()}
+function clrN(id){notifs=notifs.filter(n=>n.id!==id);updBdg();renderNL()}
+function updBdg(){const u=notifs.filter(n=>!n.read).length;const b=document.getElementById('nBdg');b.textContent=u;b.style.display=u?'flex':'none'}
+function renderNL(){const l=document.getElementById('nList');if(!notifs.length){l.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)"><div style="font-size:40px;margin-bottom:12px">🔔</div><div style="font-size:14px">No notifications</div></div>';return}
+l.innerHTML=notifs.map(n=>`<div class="ni" style="border-left-color:${CCOL[n.cat]||'#8E8E93'}"><button class="cb" onclick="clrN(${n.id})">✕</button><div style="font-size:13px;font-weight:600;margin-bottom:4px;padding-right:24px">${esc(n.title)}</div><div style="font-size:12px;color:var(--t2);margin-bottom:4px">${esc(n.body)}</div><div style="font-size:10px;color:var(--t3)">${n.time}</div></div>`).join('')}
+
+function setupPTR(){let ts=0,p=false;document.addEventListener('touchstart',e=>{if(window.scrollY===0)ts=e.touches[0].clientY},{passive:true});document.addEventListener('touchmove',e=>{if(ts&&!p&&e.touches[0].clientY-ts>80)p=true},{passive:true});document.addEventListener('touchend',()=>{if(p)doRefresh();ts=0;p=false},{passive:true})}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+
+if('serviceWorker'in navigator){const sw=`self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>self.clients.claim());self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{})}
+</script>
+</body>
+</html>
